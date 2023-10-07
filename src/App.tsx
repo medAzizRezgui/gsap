@@ -1,68 +1,33 @@
-import React, { useEffect, useState } from "react";
-import Img1 from "./assets/1.jpg";
-import Img2 from "./assets/2.jpg";
-import Img3 from "./assets/3.jpg";
-import Img4 from "./assets/4.jpg";
-import Img6 from "./assets/6.jpg";
-import { FancyCarousel } from "./Carrousel.tsx";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { FancyCarousel } from "./Carrousel";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import { data } from "./data";
 
 import { GoArrowLeft, GoArrowRight } from "react-icons/go";
+import gsap from "gsap";
 function App() {
   const [swiper, setSwiper] = useState(null);
-  const data = [
-    {
-      title: "Titre 1",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. ",
-      image: Img1,
-    },
-    {
-      title: "Titre 2",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      image: Img2,
-    },
-    {
-      title: "Titre 3",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      image: Img3,
-    },
-    {
-      title: "Titre 4",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      image: Img4,
-    },
-    {
-      title: "Titre 5",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      image: Img6,
-    },
-  ];
   const noOfImages: number = data.length;
   const theta: number = 360 / noOfImages;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [carousel, setCarousel] = useState({
-    carouselOrietation: 0,
+    carouselOrientation: 0,
     elementOrientation: 0,
     focusElement: 0,
   });
-  const rotateRight = (theta: number, noOfImages: number, index: number) => {
+  const rotateRight = (theta: number, noOfImages: number) => {
     setCarousel({
-      carouselOrietation: carousel.carouselOrietation + theta,
+      carouselOrientation: carousel.carouselOrientation + theta,
       elementOrientation: carousel.elementOrientation - theta,
       focusElement:
         carousel.focusElement < noOfImages - 1 ? carousel.focusElement + 1 : 0,
     });
   };
 
-  const rotateLeft = (theta: number, noOfImages: number, index: number) => {
+  const rotateLeft = (theta: number, noOfImages: number) => {
     setCarousel({
-      carouselOrietation: carousel.carouselOrietation - theta,
+      carouselOrientation: carousel.carouselOrientation - theta,
       elementOrientation: carousel.elementOrientation + theta,
       focusElement:
         carousel.focusElement > 0 ? carousel.focusElement - 1 : noOfImages - 1,
@@ -73,8 +38,9 @@ function App() {
     theta: number,
     noOfImages: number
   ) => {
+    console.log(theta * index);
     setCarousel({
-      carouselOrietation: carousel.carouselOrietation + theta * index,
+      carouselOrientation: carousel.carouselOrientation + theta * index,
       elementOrientation: carousel.elementOrientation - theta * index,
       focusElement:
         carousel.focusElement < noOfImages - index
@@ -82,19 +48,47 @@ function App() {
           : 0,
     });
   };
-  console.log(swiper);
 
   useEffect(() => {
     swiper?.slideTo(selectedIndex);
   }, [selectedIndex]);
+  const compRef = useRef(null);
+  useLayoutEffect(() => {
+    // create our context. This function is invoked immediately and all GSAP animations and ScrollTriggers created during the execution of this function get recorded so we can revert() them later (cleanup)
+    const ctx = gsap.context(() => {
+      gsap.from(".title", {
+        duration: 0.75,
+        y: -25,
+        opacity: 0,
+        ease: "ease-in-out",
+      });
+      gsap.from(".desc", {
+        duration: 0.75,
+        y: -25,
+        opacity: 0,
+        ease: "ease-in-out",
+        delay: 0.75,
+      });
+      gsap.from(".img", {
+        duration: 0.75,
+        y: -25,
+        opacity: 0,
+        ease: "ease-in-out",
+        delay: 1.5,
+      });
+    }, compRef); // <- IMPORTANT! Scopes selector text
+
+    return () => ctx.revert(); // cleanup
+  }, [selectedIndex]); // <- empty dependency Array so it doesn't re-run on every ren
 
   return (
     <div
+      ref={compRef}
       className={
-        "w-full max-w-[1200px] mx-auto h-[100vh] flex items-center justify-between"
+        "mx-auto flex h-[100vh] w-full max-w-[1200px] items-center justify-between"
       }
     >
-      <div className={"w-[50%]  flex items-center justify-center"}>
+      <div className={"flex  w-[50%] items-center justify-center"}>
         <FancyCarousel
           data={data}
           carouselRadius={200}
@@ -117,22 +111,18 @@ function App() {
           onSwiper={setSwiper}
         >
           {data.map((item, index) => (
-            <SwiperSlide key={index}>
+            <SwiperSlide key={index} className={"overflow-visible pt-4"}>
               <div className="flex items-center justify-between px-24">
-                <GoArrowLeft
-                  onClick={() => rotateLeft(theta, noOfImages, index)}
-                />
-                <h1 className="text-[22px] font-medium">{item.title}</h1>
-                <GoArrowRight
-                  onClick={() => rotateRight(theta, noOfImages, index)}
-                />
+                <GoArrowLeft onClick={() => rotateLeft(theta, noOfImages)} />
+                <h1 className={"title"}>{item.title}</h1>
+                <GoArrowRight onClick={() => rotateRight(theta, noOfImages)} />
               </div>
 
-              <p className="font-medium text-[16px]">{item.description}</p>
+              <p className="desc text-[16px] font-medium">{item.description}</p>
 
               <img
                 src={item.image}
-                className="mx-auto w-full h-[400px] object-contain"
+                className="img mx-auto h-[400px] w-full object-contain"
                 alt={`Slide ${index}`}
               />
             </SwiperSlide>

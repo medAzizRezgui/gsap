@@ -1,14 +1,15 @@
-import { FC, useState, CSSProperties } from "react";
+import { FC, CSSProperties } from "react";
+import { twMerge } from "tailwind-merge";
 
 interface CarouselInfo {
   carousel: {
-    carouselOrietation: number;
+    carouselOrientation: number;
     elementOrientation: number;
     focusElement: number;
   };
   setCarousel: React.Dispatch<
     React.SetStateAction<{
-      carouselOrietation: number;
+      carouselOrientation: number;
       elementOrientation: number;
       focusElement: number;
     }>
@@ -47,15 +48,10 @@ export const FancyCarousel: FC<CarouselInfo> = ({
   peripheralImageRadius = 75,
   peripheralImageBoxShadow = "5px 10px 18px #888888",
   focusElementStyling = {},
-  border = true,
-  borderWidth = 5,
-  borderHexColor = "CB786C",
   autoRotateTime = 0,
   transitionTime = 1.5,
   navigationTextSize = 2,
   navigationButtonRadius = 32.5,
-  navigationButtonBgColor = "CB786C",
-  navigationButtonColor = "FFFFFF",
   navigationButtonStyling = {},
   carousel,
   rotateRight,
@@ -74,7 +70,7 @@ export const FancyCarousel: FC<CarouselInfo> = ({
   const theta: number = 360 / noOfImages;
 
   const newCoordinates: number[][] = [];
-  data.forEach((_, index) => {
+  data.reverse().forEach((_, index) => {
     newCoordinates.push([
       carouselRadius -
         peripheralImageRadius +
@@ -101,9 +97,9 @@ export const FancyCarousel: FC<CarouselInfo> = ({
   });
 
   return (
-    <div className="fancy-carousel-wrapper-element">
+    <div className="bg-transparent">
       <div
-        className="fancy-carousel-border"
+        className="z-[5] bg-transparent"
         style={{
           // backgroundImage: borderElement,
           height: `${carouselRadius * 2}px`,
@@ -112,17 +108,19 @@ export const FancyCarousel: FC<CarouselInfo> = ({
         }}
       >
         <div
-          className="fancy-carousel"
+          className={
+            "relative origin-center rounded-[50%] bg-transparent duration-[0.5s]"
+          }
           style={{
-            transform: `rotate(${carousel.carouselOrietation}deg)`,
+            transform: `rotate(${carousel.carouselOrientation}deg)`,
             height: `${carouselRadius * 2}px`,
             width: `${carouselRadius * 2}px`,
           }}
         >
-          {data.map((item, index) =>
+          {data.reverse().map((item, index) =>
             index !== carousel.focusElement ? (
               <div
-                className="fancy-carousel-element opacity-50"
+                className="absolute bottom-0 m-2 flex items-center justify-center rounded-full bg-transparent opacity-50 duration-[0.5s]"
                 onClick={() =>
                   scrollToClicked(
                     index - carousel.focusElement,
@@ -146,12 +144,12 @@ export const FancyCarousel: FC<CarouselInfo> = ({
                     carousel.focusElement === index
                       ? "text-[20px]"
                       : "text-[12px]"
-                  } block absolute top-[-50px]  transition-all ease-in-out duration-500`}
+                  } absolute top-[-50px] block  transition-all duration-500 ease-in-out`}
                 >
                   {item.title}
                 </h1>
                 <img
-                  className="fancy-carousel-image"
+                  className="rounded-[50%]"
                   src={item.image}
                   style={{
                     width: `${peripheralImageRadius * 2}px`,
@@ -161,7 +159,7 @@ export const FancyCarousel: FC<CarouselInfo> = ({
               </div>
             ) : (
               <div
-                className="fancy-carousel-element"
+                className="absolute bottom-0 m-2 flex items-center justify-center rounded-full bg-transparent duration-[0.5s]"
                 key={index}
                 style={{
                   ...{
@@ -181,12 +179,12 @@ export const FancyCarousel: FC<CarouselInfo> = ({
                     carousel.focusElement === index
                       ? "text-[32px] font-medium"
                       : "text-[12px]"
-                  } block absolute top-[-50px]  transition-all ease-in-out duration-500`}
+                  } absolute top-[-50px] block  transition-all duration-500 ease-in-out`}
                 >
                   {item.title}
                 </h1>
                 <img
-                  className="fancy-carousel-image"
+                  className="rounded-[50%]"
                   src={item.image}
                   style={{
                     width: `${peripheralImageRadius * 2}px`,
@@ -199,7 +197,7 @@ export const FancyCarousel: FC<CarouselInfo> = ({
           )}
 
           <div
-            className="fancy-carousel-element central-img"
+            className="absolute bottom-0 m-2 flex items-center justify-center rounded-full bg-transparent duration-[0.5s]"
             key={noOfImages}
             style={{
               transform: `rotate(${carousel.elementOrientation}deg)`,
@@ -212,7 +210,7 @@ export const FancyCarousel: FC<CarouselInfo> = ({
             }}
           >
             <img
-              className="fancy-carousel-central-image"
+              className="rounded-full"
               src={data[carousel.focusElement].image}
               style={{
                 width: `${centralImageRadius * 2}px`,
@@ -225,23 +223,24 @@ export const FancyCarousel: FC<CarouselInfo> = ({
       </div>
 
       <div
-        className={
-          "fancy-carousel-navigators " + (autoRotateTime ? "invisible" : "")
-        }
+        className={twMerge(
+          autoRotateTime ? "hidden" : "",
+          "z-[1] flex bottom-0 left-0 bg-transparent"
+        )}
         style={{
           gap: `${carouselRadius * 2}px`,
           marginLeft: `-${navigationButtonRadius * 1.8}px`,
         }}
       >
         <button
-          className="fancy-carousel-navigation-button"
+          className="rotate-180 rounded-full border-none bg-green-400 text-white outline-none hover:cursor-pointer hover:border-none hover:outline-none"
           onClick={() => rotateLeft(theta, noOfImages, carousel.focusElement)}
           style={{
             ...{
               width: `${navigationButtonRadius * 2}px`,
               height: `${navigationButtonRadius * 2}px`,
-              backgroundColor: `#${navigationButtonBgColor}`,
-              color: `#${navigationButtonColor}`,
+              // backgroundColor: `#${navigationButtonBgColor}`,
+              // color: `#${navigationButtonColor}`,
               fontSize: `${navigationTextSize}rem`,
             },
             ...navigationButtonStyling,
@@ -250,14 +249,14 @@ export const FancyCarousel: FC<CarouselInfo> = ({
           ↓
         </button>
         <button
-          className="fancy-carousel-navigation-button"
+          className="rounded-full border-none bg-green-400 text-white outline-none hover:cursor-pointer hover:border-none hover:outline-none"
           onClick={() => rotateRight(theta, noOfImages, carousel.focusElement)}
           style={{
             ...{
               width: `${navigationButtonRadius * 2}px`,
               height: `${navigationButtonRadius * 2}px`,
-              backgroundColor: `#${navigationButtonBgColor}`,
-              color: `#${navigationButtonColor}`,
+              // backgroundColor: `#${navigationButtonBgColor}`,
+              // color: `#${navigationButtonColor}`,
               fontSize: `${navigationTextSize}rem`,
             },
             ...navigationButtonStyling,
